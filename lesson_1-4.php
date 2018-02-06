@@ -1,5 +1,13 @@
 <?php
-$text = file_get_contents('http://api.openweathermap.org/data/2.5/weather?q=Moscow,ru&units=metric&lang=ru&appid=498f598ba02978fc5dbd9b612f5648ad');
+
+$city = "Moscow";
+$state = "ru";
+$lang = "ru";
+$scale = "metric";
+$appid = "498f598ba02978fc5dbd9b612f5648ad";
+$url = "http://api.openweathermap.org/data/2.5/weather?q=$city,$state&units=$scale&lang=$lang&appid=$appid";
+
+$text = file_get_contents($url);
 $info = json_decode($text, true);
 
 //echo "<pre>";
@@ -12,8 +20,8 @@ $pressure = $info["main"]["pressure"];
 $mercury = round($pressure * 0.75006375541921); // получаем давление в мм рт. ст.
 $humidity = $info["main"]["humidity"];
 $rainfall = $info["weather"][0]["description"];
-
-$clouds = $info["clouds"]["all"];
+$sky_pic = "http://openweathermap.org/img/w/".$info["weather"][0]["icon"].".png"; // получаем погодную иконку
+$visibility = number_format($info["visibility"], 0, ',', ' '); // выводим видимость с разделением числа на разряды
 
 date_default_timezone_set('Europe/Moscow');
 $sunrise =  date("H:i", $info["sys"]["sunrise"]);
@@ -22,33 +30,35 @@ $sunset =  date("H:i", $info["sys"]["sunset"]);
 $wind_speed = $info["wind"]["speed"];
 $wind = $info["wind"]["deg"];
 
-if ($wind>=0 && $wind<22) {  // даем направление ветра в градусах и понятных терминах
-    $wind = $wind."&deg;<br>(северное)";
-    }
-        elseif ($wind>=22 && $wind<67) {
-            $wind = $wind."&deg;<br>(северо-восточное)";
-        }
-        elseif ($wind>=67 && $wind<112) {
-            $wind = $wind."&deg;<br>(восточное)";
-        }
-        elseif ($wind>=112 && $wind<157) {
-            $wind = $wind."&deg;<br>(юго-восточное)";
-        }
-        elseif ($wind>=157 && $wind<202) {
-            $wind = $wind."&deg;<br>(южное)";
-        }
-        elseif ($wind>=202 && $wind<247) {
-            $wind = $wind."&deg;<br>(юго-западное)";
-        }
-        elseif ($wind>=247 && $wind<292) {
-            $wind = $wind."&deg;<br>(западное)";
-        }
-        elseif ($wind>=292 && $wind<337) {
-            $wind = $wind."&deg;<br>(северо-западное)";
-        }
-    else {
+switch ($wind) {
+    case $wind>=0 && $wind<22;
         $wind = $wind."&deg;<br>(северное)";
-    }
+        break;
+    case $wind>=22 && $wind<67;
+        $wind = $wind."&deg;<br>(северо-восточное)";
+        break;
+    case $wind>=67 && $wind<112;
+        $wind = $wind."&deg;<br>(восточное)";
+        break;
+    case $wind>=112 && $wind<157;
+        $wind = $wind."&deg;<br>(юго-восточное)";
+        break;
+    case $wind>=157 && $wind<202;
+        $wind = $wind."&deg;<br>(южное)";
+        break;
+    case $wind>=202 && $wind<247;
+        $wind = $wind."&deg;<br>(юго-западное)";
+        break;
+    case $wind>=247 && $wind<292;
+        $wind = $wind."&deg;<br>(западное)";
+        break;
+    case $wind>=292 && $wind<337;
+        $wind = $wind."&deg;<br>(северо-западное)";
+        break;
+    case $wind>=337 && $wind<=360;
+        $wind = $wind."&deg;<br>(северное)";
+        break;
+}
 
 // "определитель" дня или ночи - пригодится для смены иконок и фоновой фотки в разное время суток
 if (date("H") >= 22 or date("H") <= 7) {
@@ -57,51 +67,11 @@ if (date("H") >= 22 or date("H") <= 7) {
 else {
     $dn = "d";
 }
+
 //URL фоновой картинки, которая будет показываваться в зависимости от времени суток
 $backimage = "http://university.netology.ru/u/korzun/me/lesson01/msc-".$dn.".jpg";
 
-//URL погодной иконки
-$sky_pic = $info["weather"][0]["id"];
-
-// можно было бы собрать эти значения в массив и уже потом подставлять нужные значения для перебора в if / else, но решил этого не делать - так оно нагляднее
-if ($sky_pic>=200 && $sky_pic<300) {
-        $sky_pic = "http://openweathermap.org/img/w/11d.png";
-    }
-    elseif ($sky_pic>=300 && $sky_pic<500) {
-        $sky_pic = "http://openweathermap.org/img/w/09d.png";
-    }
-    elseif ($sky_pic>=500 && $sky_pic<=504) {
-        $sky_pic = "http://openweathermap.org/img/w/10d.png";
-    }
-    elseif ($sky_pic>=520 && $sky_pic<600) {
-        $sky_pic = "http://openweathermap.org/img/w/09d.png";
-    }
-    elseif ($sky_pic>=600 && $sky_pic<700) {
-        $sky_pic = "http://openweathermap.org/img/w/13d.png";
-    }
-    elseif ($sky_pic>=700 && $sky_pic<800) {
-        $sky_pic = "http://openweathermap.org/img/w/50d.png";
-    }
-    elseif ($sky_pic>=803 && $sky_pic<900) {
-        $sky_pic = "http://openweathermap.org/img/w/04d.png";
-    }
-    elseif ($sky_pic==511) {
-        $sky_pic = "http://openweathermap.org/img/w/13d.png";
-    }
-    elseif ($sky_pic==800) {
-        $sky_pic = "http://openweathermap.org/img/w/01d.png";
-    }
-    elseif ($sky_pic==801) {
-        $sky_pic = "http://openweathermap.org/img/w/02d.png";
-    }
-    elseif ($sky_pic==802) {
-        $sky_pic = "http://openweathermap.org/img/w/03d.png";
-    }
-    else {
-        $sky_pic = "http://openweathermap.org/img/w/02d.png";
-    }
-
-// Показываем иконку погодных условий в зависимости от времени суток
+//Иконка погоды, адаптированная под наши собственные понятия о том, когда наступает день или ночь
 $sky_pic[strlen($sky_pic)-5] = $dn;
 
 //URL для дополнительных иконок
@@ -119,8 +89,6 @@ $sunset_pic = $pict_url."sunset.png";
 <head>
     <meta charset="UTF-8">
     <title>Задание к уроку 1-4 «Стандартные функции»</title>
-</head>
-<body>
 
 <style>
 html, body {
@@ -303,6 +271,9 @@ article {
 }
 </style>
 
+</head>
+<body>
+
 <div class="main">
     <article>
         <section class="head">
@@ -339,10 +310,10 @@ article {
             </div>
             <div class="wind_speed">
                 Ветер:<br>
-                <?php echo $wind_speed." м/с"; ?>
+                <b><?php echo $wind_speed." м/с"; ?></b>
             </div>
             <div class="wind_direct">
-                направление: <?php echo $wind; ?>
+                направление: <b><?php echo $wind; ?></b>
             </div>
 
             <div class="cloud_icon">
@@ -350,11 +321,11 @@ article {
             </div>
             <div class="humidity">
                 Влажность:<br>
-                <?php echo $humidity."%"; ?>
+                <b><?php echo $humidity."%"; ?></b>
             </div>
             <div class="cloud">
-                Облачность:<br>
-                <?php echo $clouds."%"; ?>
+                Видимость:<br>
+                <b><?php echo $visibility." м"; ?></b>
             </div>
 
             <div class="baro_icon">
@@ -362,7 +333,7 @@ article {
             </div>
             <div class="pressure">
                 Давление:<br>
-                <?php echo $pressure." гПа / ".$mercury." мм рт.столба"; ?>
+               <b><?php echo $pressure." гПа / ".$mercury." мм рт. столба"; ?></b>
             </div>
 
             <div class="sunrise_icon">
@@ -370,14 +341,14 @@ article {
             </div>
             <div class="sun">
                 Восход:<br>
-                <?php echo $sunrise; ?> 
+                <b><?php echo $sunrise; ?></b>
             </div>
             <div class="sunset_icon">
                 <img src=<?php echo $sunset_pic; ?>>
             </div>
             <div class="sun">
                 Заход<br>
-                <?php echo $sunset; ?>
+                <b><?php echo $sunset; ?></b>
             </div>
     </article>
 </div>
