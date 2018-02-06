@@ -18,6 +18,9 @@ $continents=[
 // Решение: формируем массивы из зверей с двуми словами в названии
 
 $double_animals = [];
+$creatures = [];
+$animals_1 = [];
+$animals_2 = [];
 
 foreach ($continents as $region=>$animals) {
 //  echo "<br><h2>".$region."</h2><br>";
@@ -41,7 +44,7 @@ shuffle($animals_2);
 // б) создаем массив с фантастическими животными
 
 $fantastic = [];
-    for ($i=0; $i<=count($animals_1)-1; $i++) {
+    for ($i=0; $i<count($animals_1); $i++) {
         $fantastic[] = $animals_1[$i]." ".$animals_2[$i];
     }
 
